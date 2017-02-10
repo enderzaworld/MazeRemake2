@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: 06a9b43231878e544bf33e4dc00e0d2a
+timeCreated: 1486626966
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - hwall: {instanceID: 0}
+  - hwallStart: {instanceID: 0}
+  - hwallGoal: {instanceID: 0}
+  - vwall: {instanceID: 0}
+  - vwallStart: {instanceID: 0}
+  - vwallGoal: {instanceID: 0}
+  - floor: {instanceID: 0}
+  - floorHint: {instanceID: 0}
+  - player: {instanceID: 0}
+  - dummy: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

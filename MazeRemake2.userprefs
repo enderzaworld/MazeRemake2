@@ -1,0 +1,17 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\MinimapScriptPackage\minimap\minimap.js">
+    <Files>
+      <File FileName="Assets\MazeAssets\MainGUI.js" Line="776" Column="40" />
+      <File FileName="Assets\MinimapScriptPackage\minimap\minimap.js" Line="112" Column="80" />
+      <File FileName="Assets\Standard Assets\CrossPlatformInput\Scripts\MobileControlRig.cs" Line="1" Column="1" />
+      <File FileName="Assets\MazeAssets\GoalCollide.js" Line="1" Column="1" />
+      <File FileName="Assets\Standard Assets\Characters\ThirdPersonCharacter\Scripts\ThirdPersonUserControl.cs" Line="1" Column="1" />
+      <File FileName="Assets\Standard Assets\Characters\ThirdPersonCharacter\Scripts\ThirdPersonCharacter.cs" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
