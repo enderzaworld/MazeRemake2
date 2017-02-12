@@ -10,7 +10,7 @@ public var celeb : int = 0;
      playerCollision = true;
      celeb = 200;
      print("yeah");
-   } else 
+   } else if(celeb<=0)
    {
      playerCollision = false;
    }

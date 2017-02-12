@@ -610,13 +610,19 @@ private static var warningMazeInvalidInput6 : int = 0;
 private static var warningMazeInvalidInput7 : int = 0;
 
 function OnGUI(){
+var fontSize = pD(7,Screen.height);
+gearSkin.fontSize = fontSize;
+grayBarSkin.fontSize = fontSize;
+greenBarSkin.fontSize = fontSize;
+lightBlueBarSkin.fontSize = fontSize;
+//print(fontSize);
 if(loadingGui){
 	GUI.Label(Rect(0,0,Screen.width,Screen.height), "Loading....", grayBarSkin);
 }else{
 		GUILayout.BeginArea(new Rect((Screen.width)-pD(7,Screen.width),0,pD(5,Screen.width),pD(5,Screen.width)));
 		//print(pD(7,Screen.width));
 		GUILayout.BeginHorizontal();
-		if(GUILayout.Button(b1Text,gearSkin,GUILayout.Width(pD(12,Screen.height)),GUILayout.Height(pD(12,Screen.height)))){
+		if(GUILayout.Button(b1Text,gearSkin,GUILayout.Width(pD(5,Screen.width)),GUILayout.Height(pD(5,Screen.width)))){
         	GUIEnabled = !GUIEnabled;
 		}
 		GUILayout.EndHorizontal();
@@ -776,7 +782,7 @@ if(loadingGui){
     if(GameObject.FindWithTag("Player").GetComponent(GoalCollide).playerCollision){
     	var msgString:String = "";
     	var nextNum = 0;
-    	if(GameObject.FindWithTag("Player").GetComponent(GoalCollide).celeb<=0){
+    	if(GameObject.FindWithTag("Player").GetComponent(GoalCollide).celeb<=0){	
     		GameObject.FindWithTag("Player").GetComponent(GoalCollide).playerCollision=false;
     		switch(gameMode){
     			case "None":break;
