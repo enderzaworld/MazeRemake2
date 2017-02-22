@@ -33,20 +33,38 @@ public static var cheatSolve : boolean = false;
 public static var cheatHint : boolean = false;
 public static var cheatWallBreak : int = 4;
 public static var cheatMap : boolean = false;
-static var mazeVisitedCellX = new Array();
-static var mazeVisitedCellY = new Array();
-static var mazePathCellX = new Array();
-static var mazePathCellY = new Array();
+static var mazeVisitedCell:Vector2[] = new Vector2[0];
+static var mazePathCell:Vector2[] = new Vector2[0];
 static var makeReq = false;
+static var MazeExist = false;
+public static var showGUI : boolean = true;
+public var backSound : AudioSource;
 
 function Start () {
+	if(backSound==null){
+		backSound=GameObject.FindWithTag("Audio") as AudioSource;
+	}
+}
+
+function OnEnable(){
 
 }
 
 function Update () {
+	if(backSound==null){
+		backSound=GameObject.FindWithTag("Audio") as AudioSource;
+	}
+	if(GUIEnabled){
+    	Time.timeScale = 0;
+    	backSound.mute = true;
+    }else{
+		Time.timeScale = 1;
+    	backSound.mute = false;
+	}
 	if(makeReq){
 		makeMaze();
 		makeReq=false;
+		MazeExist=true;
 	}
 }
 
@@ -60,14 +78,14 @@ function solve(){
 	if(cheatSolve){
 		var r:int = -1;
 		var c:int = -1;
-		for( var i=0; i<mazePathCellX.length && i<mazePathCellY.length ; i++){
-			r = mazePathCellX[i];
-			c = mazePathCellY[i];
+		for( var i=0; i<mazePathCell.length; i++){
+			r = mazePathCell[i].x;
+			c = mazePathCell[i].y;
 			spawnHint(floorHint,10*r+5,0.001,10*c+5);
 		}
-		for( i=0; i<mazePathCellX.length && i<mazePathCellY.length ; i++ )
+		for( i=0; i<mazePathCell.length; i++ )
 		{
-			Debug.Log( mazePathCellX[i]+" , "+mazePathCellY[i] );
+			Debug.Log( mazePathCell );
 		}
 		print("spawn end");
 	}else{
@@ -82,14 +100,14 @@ function hint(){
 	if(cheatHint){
 		var r:int = -1;
 		var c:int = -1;
-		for( var i=0; i<mazeVisitedCellX.length && i<mazeVisitedCellY.length ; i++){
-			r = mazeVisitedCellX[i];
-			c = mazeVisitedCellY[i];
+		for( var i=0; i<mazeVisitedCell.length; i++){
+			r = mazeVisitedCell[i].x;
+			c = mazeVisitedCell[i].y;
 			spawnHint(floorHint,10*r+5,0.001,10*c+5);
 		}
-		for( i=0; i<mazeVisitedCellX.length && i<mazeVisitedCellY.length ; i++ )
+		for( i=0; i<mazeVisitedCell.length; i++ )
 		{
-			Debug.Log( mazeVisitedCellX[i]+" , "+mazeVisitedCellY[i] );
+			Debug.Log( mazeVisitedCell );
 		}
 		print("spawn end");
 	}else{
@@ -187,10 +205,8 @@ function putPlayer(x : float ,y : float ,z : float){
 }
 
 function detest(){
-	mazeVisitedCellX = new Array();
-	mazeVisitedCellY = new Array();
-	mazePathCellX = new Array();
-	mazePathCellY = new Array();
+	mazeVisitedCell = new Array();
+	mazePathCell = new Array();
 	hwallGoal.transform.position = Vector3(-150,-150,-150);
 	hwallStart.transform.position = Vector3(-150,-150,-150);
 	vwallGoal.transform.position = Vector3(-150,-150,-150);
@@ -231,10 +247,8 @@ loadingGui=true;
 
 var rand = new System.Random();
 /*try{
-	mazeVisitedCellX = new Array();
-	mazeVisitedCellY = new Array();
-	mazePathCellX = new Array();
-	mazePathCellY = new Array();
+	mazeVisitedCell = new Array();
+	mazePathCell = new Array();
 cheatHint=false;
 cheatSolve=false;
 }catch(err){ print("random maze clean error");return;}*/
@@ -398,16 +412,29 @@ var rand = new System.Random();
 	}
 }
 
+static function pushToVector2Array(obj:Vector2[],item:Vector2){
+var temp = new Array (obj);
+temp.Add(item);
+obj = temp.ToBuiltin(Vector2) as Vector2[];
+return obj;
+}
+
+static function removeVector2AtArray(obj:Vector2[],num:int){
+var temp = new Array (obj);
+temp.RemoveAt(num);
+obj = temp.ToBuiltin(Vector2) as Vector2[];
+return obj;
+}
+
 static function votingWalls(startX : int ,startY : int ,goalX : int ,goalY : int){
 var rand = new System.Random();
 var dumX : int = 0;
 var dumY : int = 0;
 dumX=startX;
 dumY=startY;
-mazeVisitedCellX = new Array();
-mazeVisitedCellY = new Array();
-mazeVisitedCellX.Add(dumX);
-mazeVisitedCellY.Add(dumY);
+mazeVisitedCell = new Vector2[0];
+mazeVisitedCell = pushToVector2Array(mazeVisitedCell,(new Vector2(dumX,dumY)));
+//mazeVisitedCell.Push(new Vector2(dumX,dumY));
 var stepBack : int = 0;
 //here building resumehere
 var failSafe:int = m*n;
@@ -424,19 +451,19 @@ var failSafe:int = m*n;
 			available = getAvailable(dumX,dumY);
 			if(available.length==0){
 				stepBack++;
-				if((mazeVisitedCellX.length-1)-stepBack<0){break;}
-				if((mazeVisitedCellY.length-1)-stepBack<0){break;}
-				dumX = mazeVisitedCellX[(mazeVisitedCellX.length-1)-stepBack];
-				dumY = mazeVisitedCellY[(mazeVisitedCellY.length-1)-stepBack];
+				if((mazeVisitedCell.length-1)-stepBack<0){break;}
+				var index = (mazeVisitedCell.length-1)-stepBack;
+				dumX = mazeVisitedCell[index].x;
+				dumY = mazeVisitedCell[index].y;
 			}
-			if(stepBack==mazeVisitedCellX.length){
+			if(stepBack==mazeVisitedCell.length){
 				break;
 			}
 		}while(available.length==0);
 		if(available.length==0){/*
-	for( var i=0; i<mazeVisitedCellX.length && i<mazeVisitedCellY.length ; i++ )
+	for( var i=0; i<mazeVisitedCell.length; i++ )
 	{
-		Debug.Log( mazeVisitedCellX[i]+" , "+mazeVisitedCellY[i] );
+		Debug.Log( mazeVisitedCell);
 	}
 	Debug.Log( startX+" , "+startY+" -> "+goalX+" , "+goalY);
 	Debug.Log( dumX+" , "+dumY);*/
@@ -450,8 +477,9 @@ var failSafe:int = m*n;
 			case 2: mazeVWallsHP[dumX,dumY+1]-=1; dumY++; break;//right
 			case 3: mazeHWallsHP[dumX+1,dumY]-=1; dumX++; break;//down
 		}
-		mazeVisitedCellX.Add(dumX);
-		mazeVisitedCellY.Add(dumY);
+		
+		mazeVisitedCell = pushToVector2Array(mazeVisitedCell,(new Vector2(dumX,dumY)));
+		//mazeVisitedCell.Add(new Vector2(dumX,dumY));
 	}
 		cleanSolution();
 		Debug.Log("end");
@@ -460,18 +488,17 @@ var failSafe:int = m*n;
 
 static function cleanSolution(){
 var x=1;
-//var failSafeClean=mazePathCellX.length;
+//var failSafeClean=mazePathCell.length;
 print("Cleaning Solution");
-mazePathCellX = new Array(mazeVisitedCellX);
-mazePathCellY = new Array(mazeVisitedCellY);
-	for(var i=0;i<mazePathCellX.length-1 && i<mazePathCellY.length-1 /*&& failSafeClean>=0*/;i++){
-		if(!isAdjacent(mazePathCellX[i],mazePathCellY[i],mazePathCellX[i+1],mazePathCellY[i+1])){
+mazePathCell = new Array(mazeVisitedCell);
+	for(var i=0;i<mazePathCell.length-1/*&& failSafeClean>=0*/;i++){
+		if(!isAdjacent(mazePathCell[i],mazePathCell[i+1])){
 			print("Cleaning Solution:"+i);
 			x=1;
 			//var failSafe=mazePathCellX.length;
 			if(i-x>=0/*&&failSafe>0*/){
-				print("i-x:"+(i-x)+" len:"+mazePathCellX.length);
-				while(!isAdjacent(mazePathCellX[i-x],mazePathCellY[i-x],mazePathCellX[i+1],mazePathCellY[i+1])/*&&failSafe>0*/){
+				print("i-x:"+(i-x)+" len:"+mazePathCell.length);
+				while(!isAdjacent(mazePathCell[i-x],mazePathCell[i+1])/*&&failSafe>0*/){
 					x++;
 					if(i-x<0){print("clean current end, next");break;}
 					//failSafe--;
@@ -479,8 +506,8 @@ mazePathCellY = new Array(mazeVisitedCellY);
 				}
 				for(var ii=0;ii<x;ii++){
 					print("remove("+(i-(x-1))+")");
-					mazePathCellX.RemoveAt(i-(x-1));
-					mazePathCellY.RemoveAt(i-(x-1));
+					mazePathCell = removeVector2AtArray(mazePathCell,(i-(x-1)));
+					//mazePathCell.RemoveAt(i-(x-1));
 				}
 				i-=(x);
 			}/*else{
@@ -493,6 +520,15 @@ mazePathCellY = new Array(mazeVisitedCellY);
 print("Cleaning Solution Done");
 }
 
+static function isAdjacent(p1:Vector2,p2:Vector2){
+//print(Mathf.Abs(x1-x2)+" || "+Mathf.Abs(y1-y2));
+	if((Mathf.Abs(p1.x-p2.x)==1f && p1.y==p2.y)||(Mathf.Abs(p1.y-p2.y)==1f && p1.x==p2.x)){
+		print("true");
+		return true;
+	}
+	return false;
+}
+
 static function isAdjacent(x1:int,y1:int,x2:int,y2:int){
 //print(Mathf.Abs(x1-x2)+" || "+Mathf.Abs(y1-y2));
 	if((Mathf.Abs(x1-x2)==1f && y1==y2)||(Mathf.Abs(y1-y2)==1f && x1==x2)){
@@ -503,8 +539,8 @@ static function isAdjacent(x1:int,y1:int,x2:int,y2:int){
 }
 
 static function isSolVisited(r : int ,c : int){
-	for( var i=0; i<mazePathCellX.length && i<mazePathCellY.length ; i++){
-		if(mazePathCellX[i] == r && mazePathCellY[i] == c){
+	for( var i=0; i<mazePathCell.length; i++){
+		if(mazePathCell[i].x == r && mazePathCell[i].y == c){
 			return true;
 		}
 	}
@@ -512,8 +548,8 @@ return false;
 }
 
 static function isVisited(r : int ,c : int){
-	for( var i=0; i<mazeVisitedCellX.length && i<mazeVisitedCellY.length ; i++){
-		if(mazeVisitedCellX[i] == r && mazeVisitedCellY[i] == c){
+	for( var i=0; i<mazeVisitedCell.length; i++){
+		if(mazeVisitedCell[i].x == r && mazeVisitedCell[i].y == c){
 			return true;
 		}
 	}
@@ -574,6 +610,7 @@ function fixRefresh(){
 		removeHint();
 		cheatHint=false;
 		cheatSolve=false;
+		MazeExist=false;
 	}catch(err){ print("clean error");print(err.Message);return;}
 }
 
@@ -609,7 +646,10 @@ private static var warningMazeInvalidInput5 : int = 0;
 private static var warningMazeInvalidInput6 : int = 0;
 private static var warningMazeInvalidInput7 : int = 0;
 
+private var keyboard: TouchScreenKeyboard;
+
 function OnGUI(){
+if(showGUI){
 var fontSize = pD(7,Screen.height);
 gearSkin.fontSize = fontSize;
 grayBarSkin.fontSize = fontSize;
@@ -619,6 +659,7 @@ lightBlueBarSkin.fontSize = fontSize;
 if(loadingGui){
 	GUI.Label(Rect(0,0,Screen.width,Screen.height), "Loading....", grayBarSkin);
 }else{
+    GUI.Label(Rect(pD(35,Screen.width),pD(1,Screen.height),pD(30,Screen.width),pD(10,Screen.height)), m+" x "+n, grayBarSkin);
 		GUILayout.BeginArea(new Rect((Screen.width)-pD(7,Screen.width),0,pD(5,Screen.width),pD(5,Screen.width)));
 		//print(pD(7,Screen.width));
 		GUILayout.BeginHorizontal();
@@ -651,24 +692,13 @@ if(loadingGui){
 		}
 		GUILayout.EndHorizontal();
 		GUILayout.BeginHorizontal();
-		if(GUILayout.Button(b3Text,lightBlueBarSkin,GUILayout.Width(pD(30,Screen.width)),GUILayout.Height(pD(12,Screen.height)))){
-        	fixRefresh();
-        	try{
-	        	GUIEnabled = false;
-        	}catch(err){
-				print(err.Message);
-				warningMazeInvalidInput2=1000;
-			}
-		}
-		GUILayout.EndHorizontal();
-		GUILayout.BeginHorizontal();
 		if(GUILayout.Button(b4Text,lightBlueBarSkin,GUILayout.Width(pD(30,Screen.width)),GUILayout.Height(pD(12,Screen.height)))){
         	loadingGui=true;
 			GUI.Label(Rect(0,0,Screen.width,Screen.height), "Loading....", grayBarSkin);
         	fixRefresh();
         	try{
 	        	GUIEnabled = false;
-			    thread = System.Threading.Thread(radOn);
+			    thread = System.Threading.Thread(randomaze);
 			    thread.Start();
 	        	gameMode="random";
         	}catch(err){
@@ -678,6 +708,42 @@ if(loadingGui){
 			loadingGui=false;
 		}
 		GUILayout.EndHorizontal();
+		GUILayout.BeginHorizontal();
+		var guiRect = new Rect(0,pD(24,Screen.height),pD(10,Screen.width),pD(12,Screen.height));
+	    if (Event.current != null && Event.current.isMouse)
+	    {
+	    		//print(Event.current.mousePosition);
+	    	if(guiRect.Contains(Event.current.mousePosition)){
+	    		//print(Event.current.mousePosition+" rawr");
+	    		keyboard = TouchScreenKeyboard.Open(numberString, TouchScreenKeyboardType.NumberPad);
+	    	}
+	    }
+	    numberString = GUILayout.TextField(numberString,10,grayBarSkin,GUILayout.Width(pD(10,Screen.width)),GUILayout.Height(pD(12,Screen.height)));
+		//print(guiRect+", "+Event.current.mousePosition);
+		if(GUILayout.Button("Generate",lightBlueBarSkin,GUILayout.Width(pD(20,Screen.width)),GUILayout.Height(pD(12,Screen.height)))){
+			loadingGui=true;
+			GUI.Label(Rect(0,0,Screen.width,Screen.height), "Loading....", grayBarSkin);
+			fixRefresh();
+			try{
+			number = IntParseFast(numberString);
+			}catch(err){
+				print(err.Message);
+				warningMazeInvalidInput7=1000;
+			}
+				fixRefresh();
+        		try{
+				    thread = System.Threading.Thread(radOn);
+				    thread.Start();
+	        		gameMode="randomLevel";
+					GUIEnabled = false;
+				}catch(err){
+					print(err.Message);
+					warningMazeInvalidInput7=1000;
+				}
+			loadingGui=false;
+		}
+		GUILayout.EndHorizontal();
+		if(MazeExist){
 		GUILayout.BeginHorizontal();
 		if(GUILayout.Button(b5Text,lightBlueBarSkin,GUILayout.Width(pD(30,Screen.width)),GUILayout.Height(pD(12,Screen.height)))){
 			try{
@@ -711,30 +777,17 @@ if(loadingGui){
 		}
 		GUILayout.EndHorizontal();
 		GUILayout.BeginHorizontal();
-		numberString = GUILayout.TextField(numberString,10,GUILayout.Width(pD(10,Screen.width)),GUILayout.Height(pD(12,Screen.height)));
-		if(GUILayout.Button("Generate",lightBlueBarSkin,GUILayout.Width(pD(19,Screen.width)),GUILayout.Height(pD(12,Screen.height)))){
-			loadingGui=true;
-			GUI.Label(Rect(0,0,Screen.width,Screen.height), "Loading....", grayBarSkin);
-			fixRefresh();
-			try{
-			number = IntParseFast(numberString);
-			}catch(err){
+		if(GUILayout.Button(b3Text,lightBlueBarSkin,GUILayout.Width(pD(30,Screen.width)),GUILayout.Height(pD(12,Screen.height)))){
+        	fixRefresh();
+        	/*try{
+	        	GUIEnabled = false;
+        	}catch(err){
 				print(err.Message);
-				warningMazeInvalidInput7=1000;
-			}
-				fixRefresh();
-        		try{
-				    thread = System.Threading.Thread(radOn);
-				    thread.Start();
-	        		gameMode="randomLevel";
-					GUIEnabled = false;
-				}catch(err){
-					print(err.Message);
-					warningMazeInvalidInput7=1000;
-				}
-			loadingGui=false;
+				warningMazeInvalidInput2=1000;
+			}*/
 		}
 		GUILayout.EndHorizontal();
+		}
     	/*GUILayout.BeginHorizontal();
 		GUILayout.Label(l1Text);
 		GUILayout.EndHorizontal();
@@ -744,39 +797,76 @@ if(loadingGui){
 		GUILayout.EndHorizontal();*/
 		GUILayout.EndArea();
     }
-    
+    var guiLRect = new Rect(0,0,0,0);
     if(warningMazeInvalidInput>0){
-    	warningMazeInvalidInput--;
-    	GUI.Label(Rect(pD(25,Screen.width),pD(25,Screen.height),pD(50,Screen.width),pD(50,Screen.height)), "Invalid Input, Must be a number between 3 and 100",grayBarSkin);
+    	//warningMazeInvalidInput--;
+    	guiLRect = new Rect(pD(25,Screen.width),pD(25,Screen.height),pD(50,Screen.width),pD(50,Screen.height));
+	    if (Event.current != null && Event.current.isMouse && guiLRect.Contains(Event.current.mousePosition)){
+	    	warningMazeInvalidInput=0;
+	    }
+	    GUIEnabled=true;
+    	GUI.Label(guiLRect, "Invalid Input, Must be a number between 3 and 100\n Tap to continue",grayBarSkin);
     }
     
     if(warningMazeInvalidInput1>0){
-    	warningMazeInvalidInput1--;
-    	GUI.Label(Rect(pD(25,Screen.width),pD(25,Screen.height),pD(50,Screen.width),pD(50,Screen.height)), "Generation Failed",grayBarSkin);
+    	//warningMazeInvalidInput1--;
+    	guiLRect = new Rect(pD(25,Screen.width),pD(25,Screen.height),pD(50,Screen.width),pD(50,Screen.height));
+	    if (Event.current != null && Event.current.isMouse && guiLRect.Contains(Event.current.mousePosition)){
+	    	warningMazeInvalidInput1=0;
+	    }
+	    GUIEnabled=true;
+    	GUI.Label(guiLRect, "Generation Failed\n Tap to continue",grayBarSkin);
     }
     if(warningMazeInvalidInput2>0){
-    	warningMazeInvalidInput2--;
-    	GUI.Label(Rect(pD(25,Screen.width),pD(25,Screen.height),pD(50,Screen.width),pD(50,Screen.height)), "Failed to clear",grayBarSkin);
+    	//warningMazeInvalidInput2--;
+    	guiLRect = new Rect(pD(25,Screen.width),pD(25,Screen.height),pD(50,Screen.width),pD(50,Screen.height));
+	    if (Event.current != null && Event.current.isMouse && guiLRect.Contains(Event.current.mousePosition)){
+	    	warningMazeInvalidInput2=0;
+	    }
+	    GUIEnabled=true;
+    	GUI.Label(guiLRect, "Failed to clear\n Tap to continue",grayBarSkin);
     }
     if(warningMazeInvalidInput3>0){
-    	warningMazeInvalidInput3--;
-    	GUI.Label(Rect(pD(25,Screen.width),pD(25,Screen.height),pD(50,Screen.width),pD(50,Screen.height)), "Generation Failed",grayBarSkin);
+    	//warningMazeInvalidInput3--;
+    	guiLRect = new Rect(pD(25,Screen.width),pD(25,Screen.height),pD(50,Screen.width),pD(50,Screen.height));
+	    if (Event.current != null && Event.current.isMouse && guiLRect.Contains(Event.current.mousePosition)){
+	    	warningMazeInvalidInput3=0;
+	    }
+	    GUIEnabled=true;
+    	GUI.Label(guiLRect, "Generation Failed\n Tap to continue",grayBarSkin);
     }
     if(warningMazeInvalidInput4>0){
-    	warningMazeInvalidInput4--;
-    	GUI.Label(Rect(pD(25,Screen.width),pD(25,Screen.height),pD(50,Screen.width),pD(50,Screen.height)), "Hint failure",grayBarSkin);
+    	//warningMazeInvalidInput4--;
+    	guiLRect = new Rect(pD(25,Screen.width),pD(25,Screen.height),pD(50,Screen.width),pD(50,Screen.height));
+	    if (Event.current != null && Event.current.isMouse && guiLRect.Contains(Event.current.mousePosition)){
+	    	warningMazeInvalidInput4=0;
+	    }
+    	GUI.Label(guiLRect, "Hint failure\n Tap to continue",grayBarSkin);
     }
     if(warningMazeInvalidInput5>0){
-    	warningMazeInvalidInput5--;
-    	GUI.Label(Rect(pD(25,Screen.width),pD(25,Screen.height),pD(50,Screen.width),pD(50,Screen.height)), "Map failure",grayBarSkin);
+    	//warningMazeInvalidInput5--;
+    	guiLRect = new Rect(pD(25,Screen.width),pD(25,Screen.height),pD(50,Screen.width),pD(50,Screen.height));
+	    if (Event.current != null && Event.current.isMouse && guiLRect.Contains(Event.current.mousePosition)){
+	    	warningMazeInvalidInput5=0;
+	    }
+    	GUI.Label(guiLRect, "Map failure\n Tap to continue",grayBarSkin);
     }
     if(warningMazeInvalidInput6>0){
-    	warningMazeInvalidInput6--;
-    	GUI.Label(Rect(pD(25,Screen.width),pD(25,Screen.height),pD(50,Screen.width),pD(50,Screen.height)), "Solution failure",grayBarSkin);
+    	//warningMazeInvalidInput6--;
+    	guiLRect = new Rect(pD(25,Screen.width),pD(25,Screen.height),pD(50,Screen.width),pD(50,Screen.height));
+	    if (Event.current != null && Event.current.isMouse && guiLRect.Contains(Event.current.mousePosition)){
+	    	warningMazeInvalidInput6=0;
+	    }
+    	GUI.Label(guiLRect, "Solution failure\n Tap to continue",grayBarSkin);
     }
     if(warningMazeInvalidInput7>0){
-    	warningMazeInvalidInput7--;
-    	GUI.Label(Rect(pD(25,Screen.width),pD(25,Screen.height),pD(50,Screen.width),pD(50,Screen.height)), "Generation Failed",grayBarSkin);
+    	//warningMazeInvalidInput7--;
+    	guiLRect = new Rect(pD(25,Screen.width),pD(25,Screen.height),pD(50,Screen.width),pD(50,Screen.height));
+	    if (Event.current != null && Event.current.isMouse && guiLRect.Contains(Event.current.mousePosition)){
+	    	warningMazeInvalidInput6=0;
+	    }
+	    GUIEnabled=true;
+    	GUI.Label(guiLRect, "Generation Failed\n Tap to continue",grayBarSkin);
     }
     
     if(GameObject.FindWithTag("Player").GetComponent(GoalCollide).playerCollision){
@@ -793,6 +883,7 @@ if(loadingGui){
     				randomazeOn(nextNum);
     				break;
     			case "random":
+    				fixRefresh();
     				randomaze();
     				break;
     			case "randomLevel":
@@ -822,5 +913,6 @@ if(loadingGui){
     	}
     	GUI.Label(Rect(pD(25,Screen.width),pD(25,Screen.height),pD(50,Screen.width),pD(50,Screen.height)), msgString, grayBarSkin);
     }
+}
 }
 }

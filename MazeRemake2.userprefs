@@ -1,14 +1,12 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Standard Assets\CrossPlatformInput\Scripts\Joystick.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\MazeAssets\Maze Create\MazeCreate.js">
     <Files>
-      <File FileName="Assets\MazeAssets\GoalCollide.js" Line="13" Column="22" />
-      <File FileName="Assets\MazeAssets\MainGUI.js" Line="613" Column="34" />
+      <File FileName="Assets\MazeAssets\Maze Create\GetButtonCoordH.js" Line="5" Column="4" />
+      <File FileName="Assets\MazeAssets\MainGUI.js" Line="1" Column="1" />
+      <File FileName="Assets\MazeAssets\Maze Create\MazeCreate.js" Line="389" Column="15" />
+      <File FileName="Assets\MazeAssets\Maze Create\dbAccess.js" Line="1" Column="1" />
       <File FileName="Assets\MinimapScriptPackage\minimap\minimap.js" Line="1" Column="1" />
-      <File FileName="Assets\Standard Assets\CrossPlatformInput\Scripts\MobileControlRig.cs" Line="1" Column="1" />
-      <File FileName="Assets\Standard Assets\Characters\ThirdPersonCharacter\Scripts\ThirdPersonUserControl.cs" Line="1" Column="1" />
-      <File FileName="Assets\Standard Assets\Characters\ThirdPersonCharacter\Scripts\ThirdPersonCharacter.cs" Line="1" Column="1" />
-      <File FileName="Assets\Standard Assets\CrossPlatformInput\Scripts\Joystick.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
